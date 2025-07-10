@@ -9,11 +9,6 @@ anki-deps
 *.swp
 matlab.mat
 
-*.so
-_build/
-build/
-3rd/**/lib/*.so
-
 _build*/
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
