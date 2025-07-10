@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
-#
-# project/victor/scripts/robot_sh.sh
-#
-# Helper script to run shell commands on robot
-#
+
+# Fail on error or undefined variable
 set -eu
 
-# Get path to this script
-SCRIPT_PATH=$(dirname $([ -L $0 ] && echo "$(dirname $0)/$(readlink -n $0)" || echo $0))
+# === CONFIGURATION ===
+# Set robot IP (edit if needed or use a robot_ip.txt file)
+ROBOT_IP=$(cat ./robot_ip.txt)
 
-source ${SCRIPT_PATH}/victor_env.sh
+# Absolute path to your working private key (edit as needed)
+SSH_KEY_PATH="$(pwd)/robot_sshkey"
 
-source ${SCRIPT_PATH}/host_robot_ip_override.sh
+# === FUNCTION TO RUN REMOTE COMMAND ===
+robot_sh() {
+    ssh -i "$SSH_KEY_PATH" \
+        -o StrictHostKeyChecking=no \
+        -o UserKnownHostsFile=/dev/null \
+        root@$ROBOT_IP "$@"
+}
 
-robot_set_host
-
+# === ENTRY POINT ===
 robot_sh "$@"
 
