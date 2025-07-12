@@ -72,6 +72,9 @@ enum EyeColor {
   SINGULARITY_SAPPHIRE   = 4;
   FALSE_POSITIVE_PURPLE  = 5;
   CONFUSION_MATRIX_GREEN = 6;
+  RAINBOW_EYES           = 7;
+  ROBOT_RED              = 8;
+  CPU_TEMP_EYES          = 9;
 }
 
 message CustomEyeColor {

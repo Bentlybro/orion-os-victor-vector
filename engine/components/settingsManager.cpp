@@ -18,6 +18,7 @@
 #include "engine/robot.h"
 #include "engine/robotDataLoader.h"
 #include "engine/robotInterface/messageHandler.h"
+#include "osState/osState.h"
 
 #include "coretech/common/engine/utils/timer.h"
 #include "util/console/consoleInterface.h"
@@ -59,6 +60,14 @@ namespace Anki
         LOG_INFO("SettingsManager.Destructor", "Stopping Rainbow Eyes thread during shutdown");
         _stopRainbowEyeThread.store(true, std::memory_order_release);
         _rainbowEyeThread.join();
+      }
+      
+      // Stop the CPU temperature eye thread if it's active
+      if (_cpuTempEyeThread.joinable())
+      {
+        LOG_INFO("SettingsManager.Destructor", "Stopping CPU Temperature Eyes thread during shutdown");
+        _stopCpuTempEyeThread.store(true, std::memory_order_release);
+        _cpuTempEyeThread.join();
       }
     }
 
@@ -519,9 +528,19 @@ namespace Anki
         _stopRainbowEyeThread.store(false, std::memory_order_release); // Reset the flag for future use
       }
 
+      // stop the CPU temperature thread if it's active
+      if (_cpuTempEyeThread.joinable())
+      {
+        _stopCpuTempEyeThread.store(true, std::memory_order_release);
+        _cpuTempEyeThread.join();
+        _cpuTempEyeThread = std::thread();                             // Reset the thread object
+        _stopCpuTempEyeThread.store(false, std::memory_order_release); // Reset the flag for future use
+      }
+
       if (!isUsingCustomColor)
       {
         const std::string rainbowEyesStr = "RAINBOW_EYES";
+        const std::string cpuTempEyesStr = "CPU_TEMP_EYES";
         const auto &value = _currentSettings[key].asUInt();
         const auto &eyeColorName = EyeColor_Name(static_cast<external_interface::EyeColor>(value));
         LOG_INFO("SettingsManager.ApplySettingEyeColor.Apply", "Setting robot eye color to %s", eyeColorName.c_str());
@@ -554,6 +573,57 @@ namespace Anki
                         {
                             LOG_INFO("SettingsManager.ApplySettingEyeColor.Apply", "Stopping Rainbow Eyes thread");
                             _stopRainbowEyeThread.store(true, std::memory_order_release);
+                            break;
+                        }
+                    } });
+          }
+
+          return true;
+        }
+        else if (eyeColorName == cpuTempEyesStr)
+        {
+          LOG_INFO("SettingsManager.ApplySettingEyeColor.Apply", "Starting CPU Temperature Eyes thread");
+
+          // only start the thread if it's not already running
+          if (!_cpuTempEyeThread.joinable())
+          {
+            _cpuTempEyeThread = std::thread([this]()
+                                            {
+                    while (!_stopCpuTempEyeThread.load(std::memory_order_acquire))
+                    {
+                        // Get CPU temperature
+                        const uint32_t cpuTemp_C = OSState::getInstance()->GetTemperature_C();
+                        
+                        // Temperature range: 30°C (cool/blue) to 80°C (hot/red)
+                        const float minTemp = 30.0f;
+                        const float maxTemp = 80.0f;
+                        
+                        // Clamp temperature to our range
+                        float normalizedTemp = (static_cast<float>(cpuTemp_C) - minTemp) / (maxTemp - minTemp);
+                        normalizedTemp = std::max(0.0f, std::min(1.0f, normalizedTemp));
+                        
+                        // Blue to Red gradient avoiding green
+                        // Blue: 0.667 (240°), Red: 0.0 (0°)
+                        // Go the "long way" around the color wheel: Blue -> Purple -> Red
+                        float hue = 0.667f + (normalizedTemp * 0.333f); // 0.667 to 1.0
+                        if (hue > 1.0f) hue = hue - 1.0f; // Wrap around: 1.0+ becomes 0.0+ (red)
+                        
+                        // Full saturation for vivid colors
+                        float saturation = 1.0f;
+                        
+                        _robot->SendRobotMessage<RobotInterface::SetFaceHue>(hue);
+                        _robot->SendRobotMessage<RobotInterface::SetFaceSaturation>(saturation);
+                        
+                        std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Update every 500ms
+
+                        // Check if "CPU_TEMP_EYES" mode is still active by checking the setting
+                        const std::string cpuTempEyesStrInTh = "CPU_TEMP_EYES";
+                        const auto& eyeval = _currentSettings[key].asUInt();
+                        const auto& currentHueKey = EyeColor_Name(static_cast<external_interface::EyeColor>(eyeval));
+                        if (currentHueKey != cpuTempEyesStrInTh)
+                        {
+                            LOG_INFO("SettingsManager.ApplySettingEyeColor.Apply", "Stopping CPU Temperature Eyes thread");
+                            _stopCpuTempEyeThread.store(true, std::memory_order_release);
                             break;
                         }
                     } });

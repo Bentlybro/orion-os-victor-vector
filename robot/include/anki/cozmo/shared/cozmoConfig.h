@@ -74,7 +74,7 @@ namespace Vector {
   // flies off of the robot and comes back! So for now, we just don't
   // drive the lift down that far. We also skip calibration in sim.
   const f32 LIFT_PROTO_MIN_HEIGHT                 = 20.4f;
-  const f32 LIFT_HEIGHT_LOWDOCK                   = 32.f; // For interfacing with a cube that is on the ground.
+  const f32 LIFT_HEIGHT_LOWDOCK                   = 59.f; // Raised from 32.f to prevent catching on objects while driving
   const f32 LIFT_HEIGHT_HIGHDOCK                  = 76.f; // For interfacing with a cube that is stacked on top of another cube.
   const f32 LIFT_HEIGHT_CARRY                     = 92.f; // Cube carrying height.
   const f32 LIFT_HEIGHT_LOW_ROLL                  = 68.f; // For rolling a cube that is on the ground.

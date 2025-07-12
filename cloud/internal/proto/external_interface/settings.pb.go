@@ -324,6 +324,7 @@ const (
 	EyeColor_CONFUSION_MATRIX_GREEN EyeColor = 6
 	EyeColor_RAINBOW_EYES           EyeColor = 7
 	EyeColor_ROBOT_RED              EyeColor = 8
+	EyeColor_CPU_TEMP_EYES          EyeColor = 9
 )
 
 // Enum value maps for EyeColor.
@@ -338,6 +339,7 @@ var (
 		6: "CONFUSION_MATRIX_GREEN",
 		7: "RAINBOW_EYES",
 		8: "ROBOT_RED",
+		9: "CPU_TEMP_EYES",
 	}
 	EyeColor_value = map[string]int32{
 		"TIP_OVER_TEAL":          0,
@@ -349,6 +351,7 @@ var (
 		"CONFUSION_MATRIX_GREEN": 6,
 		"RAINBOW_EYES":           7,
 		"ROBOT_RED":              8,
+		"CPU_TEMP_EYES":          9,
 	}
 )
 
@@ -1803,7 +1806,7 @@ const file_settings_proto_rawDesc = "" +
 	"\rmaster_volume\x10\x06\x12\x16\n" +
 	"\x12temp_is_fahrenheit\x10\a\x12\r\n" +
 	"\ttime_zone\x10\b\x12\x13\n" +
-	"\x0fbutton_wakeword\x10\t*\xcc\x01\n" +
+	"\x0fbutton_wakeword\x10\t*\xdf\x01\n" +
 	"\bEyeColor\x12\x11\n" +
 	"\rTIP_OVER_TEAL\x10\x00\x12\x12\n" +
 	"\x0eOVERFIT_ORANGE\x10\x01\x12\x12\n" +
@@ -1813,7 +1816,8 @@ const file_settings_proto_rawDesc = "" +
 	"\x15FALSE_POSITIVE_PURPLE\x10\x05\x12\x1a\n" +
 	"\x16CONFUSION_MATRIX_GREEN\x10\x06\x12\x10\n" +
 	"\fRAINBOW_EYES\x10\a\x12\r\n" +
-	"\tROBOT_RED\x10\b*K\n" +
+	"\tROBOT_RED\x10\b\x12\x11\n" +
+	"\rCPU_TEMP_EYES\x10\t*K\n" +
 	"\x0eButtonWakeWord\x12\x1e\n" +
 	"\x1aBUTTON_WAKEWORD_HEY_VECTOR\x10\x00\x12\x19\n" +
 	"\x15BUTTON_WAKEWORD_ALEXA\x10\x01*5\n" +

@@ -44,6 +44,10 @@ public:
   std::thread _rainbowEyeThread;
   std::atomic<bool> _isRainbowEyesActive{false};
   std::atomic<bool> _stopRainbowEyeThread{false};
+  
+  std::thread _cpuTempEyeThread;
+  std::atomic<bool> _isCpuTempEyesActive{false};
+  std::atomic<bool> _stopCpuTempEyeThread{false};
 
   //////
   // IDependencyManagedComponent functions
