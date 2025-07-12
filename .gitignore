@@ -472,3 +472,4 @@ oe-workdir
 3rd/aubio/vicos/lib/libaubio.so
 project/doxygen/anki
 lib/util/configure.py
+/3rd
